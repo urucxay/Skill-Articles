@@ -1,18 +1,13 @@
 package ru.skillbranch.skillarticles.ui
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
 import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.widget.ImageView
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
@@ -46,18 +41,18 @@ class RootActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.search_menu, menu)
 
-        val searchItem = menu?.findItem(R.id.action_search)
+        val searchItem = menu.findItem(R.id.action_search)
         val searchView = searchItem?.actionView as SearchView
 
-        val isSearch = viewModel.state.value?.isSearch ?: false
-        val query = viewModel.state.value?.searchQuery ?: ""
+        val isSearch = viewModel.currentState.isSearch
+        val query = viewModel.currentState.searchQuery
 
         if (isSearch) {
             searchItem.expandActionView()
-            searchView.setQuery(query, true)
+            searchView.setQuery(query, false)
         }
 
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -95,8 +90,9 @@ class RootActivity : AppCompatActivity() {
             .setAnchorView(bottombar)
             .setActionTextColor(getColor(R.color.color_accent_dark))
 
-        when(notify) {
-            is Notify.TextMessage -> {}
+        when (notify) {
+            is Notify.TextMessage -> {
+            }
             is Notify.ActionMessage -> {
                 snackbar.setAction(notify.actionLabel) {
                     notify.actionHandler.invoke()
@@ -130,9 +126,6 @@ class RootActivity : AppCompatActivity() {
     }
 
     private fun renderUi(data: ArticleState) {
-
-        Log.d("STATE!!!", "isSearch:${data.isSearch} query:${data.searchQuery} ")
-
         btn_settings.isChecked = data.isShowMenu
         if (data.isShowMenu) submenu.open() else submenu.close()
 
@@ -140,7 +133,8 @@ class RootActivity : AppCompatActivity() {
         btn_bookmark.isChecked = data.isBookmark
 
         switch_mode.isChecked = data.isDarkMode
-        delegate.localNightMode = if (data.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+        delegate.localNightMode =
+            if (data.isDarkMode) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
 
         if (data.isBigText) {
             tv_text_content.textSize = 18f
@@ -152,9 +146,8 @@ class RootActivity : AppCompatActivity() {
             btn_text_down.isChecked = true
         }
 
-//        searchView.setQuery(data.searchQuery, false)
-
-        tv_text_content.text = if (data.isLoadingContent) resources.getString(R.string.loading) else data.content.first() as String
+        tv_text_content.text =
+            if (data.isLoadingContent) resources.getString(R.string.loading) else data.content.first() as String
 
         toolbar.title = data.title ?: resources.getString(R.string.loading)
         toolbar.subtitle = data.category ?: resources.getString(R.string.loading)
