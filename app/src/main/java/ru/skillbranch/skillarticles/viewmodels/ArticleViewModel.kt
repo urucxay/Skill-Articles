@@ -10,6 +10,7 @@ import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
 import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.indexesOf
+import ru.skillbranch.skillarticles.markdown.MarkdownParser
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
@@ -19,6 +20,7 @@ class ArticleViewModel(
 ) : BaseViewModel<ArticleState>(ArticleState()), IArticleViewModel {
 
     private val repository = ArticleRepository
+    private var clearContent: String? = null
 
     init {
         subscribeOnDataSource(getArticleData()) { article, currentState ->
@@ -57,7 +59,7 @@ class ArticleViewModel(
         }
     }
 
-    override fun getArticleContent(): LiveData<List<Any>?> =
+    override fun getArticleContent(): LiveData<String?> =
         repository.loadArticleContent(articleId)
 
     override fun getArticleData(): LiveData<ArticleData?> = repository.getArticle(articleId)
@@ -123,7 +125,9 @@ class ArticleViewModel(
 
     override fun handleSearch(query: String?) {
         query ?: return
-        val result = (currentState.content.firstOrNull() as? String).indexesOf(query)
+        if (clearContent == null) clearContent = MarkdownParser.clear(currentState.content)
+        val result = clearContent
+            .indexesOf(query)
             .map { it to it + query.length }
         updateState { it.copy(searchQuery = query, searchResults = result, searchPosition = 0) }
     }
@@ -138,27 +142,27 @@ class ArticleViewModel(
 }
 
 data class ArticleState(
-    val isAuth: Boolean = false,
-    val isLoadingContent: Boolean = true,
-    val isLoadingReviews: Boolean = true,
-    val isLike: Boolean = false,
-    val isBookmark: Boolean = false,
-    val isShowMenu: Boolean = false,
-    val isBigText: Boolean = false,
-    val isDarkMode: Boolean = false,
-    val isSearch: Boolean = false,
-    val searchQuery: String? = null,
-    val searchResults: List<Pair<Int, Int>> = emptyList(),
-    val searchPosition: Int = 0,
-    val shareLink: String? = null,
-    val title: String? = null,
-    val category: String? = null,
-    val categoryIcon: Any? = null,
-    val date: String? = null,
-    val author: Any? = null,
-    val poster: String? = null,
-    val content: List<Any> = emptyList(),
-    val reviews: List<Any> = emptyList()
+        val isAuth: Boolean = false,
+        val isLoadingContent: Boolean = true,
+        val isLoadingReviews: Boolean = true,
+        val isLike: Boolean = false,
+        val isBookmark: Boolean = false,
+        val isShowMenu: Boolean = false,
+        val isBigText: Boolean = false,
+        val isDarkMode: Boolean = false,
+        val isSearch: Boolean = false,
+        val searchQuery: String? = null,
+        val searchResults: List<Pair<Int, Int>> = emptyList(),
+        val searchPosition: Int = 0,
+        val shareLink: String? = null,
+        val title: String? = null,
+        val category: String? = null,
+        val categoryIcon: Any? = null,
+        val date: String? = null,
+        val author: Any? = null,
+        val poster: String? = null,
+        val content: String? = null,
+        val reviews: List<Any> = emptyList()
 ) : IViewModelState {
 
     override fun save(outState: Bundle) {
