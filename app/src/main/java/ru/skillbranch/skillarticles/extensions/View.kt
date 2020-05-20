@@ -19,18 +19,6 @@ fun View.setMarginOptionally(
         bottom?.let { bottomMargin = it }
     }
 
-    apply1<View> {
-
-    }
-
-    apply2 {
-
-    }
-
-    also {
-
-    }
-
 }
 
 inline fun <reified T : ViewGroup.LayoutParams> View.layoutParams(block: T.() -> Unit) {

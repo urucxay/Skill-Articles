@@ -5,8 +5,7 @@ import android.text.Selection
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.method.LinkMovementMethod
-import android.text.method.ScrollingMovementMethod
-import android.util.Log
+import android.text.style.UnderlineSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
@@ -16,23 +15,21 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.text.getSpans
+import androidx.core.text.set
 import androidx.core.view.isVisible
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.layout_bottombar.*
 import kotlinx.android.synthetic.main.search_view_layout.*
 import kotlinx.android.synthetic.main.layout_submenu.*
-import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
-import ru.skillbranch.skillarticles.markdown.MarkdownBuilder
+import ru.skillbranch.skillarticles.ui.custom.markdown.MarkdownBuilder
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.ui.base.Binding
-import ru.skillbranch.skillarticles.ui.custom.SearchFocusSpan
-import ru.skillbranch.skillarticles.ui.custom.SearchSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.SearchFocusSpan
+import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
 import ru.skillbranch.skillarticles.ui.delegates.AttrValue
 import ru.skillbranch.skillarticles.ui.delegates.ObserveProp
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
@@ -40,7 +37,6 @@ import ru.skillbranch.skillarticles.viewmodels.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
-import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
 class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
@@ -55,7 +51,7 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 //    }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
-    override public val binding: ArticleBinding by lazy { ArticleBinding() }
+    public override val binding: ArticleBinding by lazy { ArticleBinding() }
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val bgColor by AttrValue(R.attr.colorSecondary)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -74,7 +70,10 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
 
         searchResult.forEach { (start, end) ->
             content.setSpan(
-                SearchSpan(bgColor, fgColor),
+                SearchSpan(
+                    bgColor,
+                    fgColor
+                ),
                 start,
                 end,
                 SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -93,9 +92,22 @@ class RootActivity : BaseActivity<ArticleViewModel>(), IArticleView {
         if (spans.isNotEmpty()) {
             //find position span
             val result = spans[searchPosition]
+            //move cursor to result position
             Selection.setSelection(content, content.getSpanStart(result))
+            //set span for result position
+
+            content[5, 10] = UnderlineSpan()
+            content[5, 10] =
+                SearchFocusSpan(
+                    bgColor,
+                    fgColor
+                )
+
             content.setSpan(
-                SearchFocusSpan(bgColor, fgColor),
+                SearchFocusSpan(
+                    bgColor,
+                    fgColor
+                ),
                 content.getSpanStart(result),
                 content.getSpanEnd(result),
                 SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE
