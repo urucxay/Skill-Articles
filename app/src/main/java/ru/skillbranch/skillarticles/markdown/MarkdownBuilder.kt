@@ -116,8 +116,10 @@ class MarkdownBuilder(context: Context) {
                 }
 
                 is Element.Link -> {
-                    inSpans(IconLinkSpan(linkIcon, colorSecondary, gap, colorPrimary, strikeWidth),
-                    URLSpan(element.link)) {
+                    inSpans(
+                        IconLinkSpan(linkIcon, colorSecondary, gap, colorPrimary, strikeWidth),
+                        URLSpan(element.link)
+                    ) {
                         append(element.text)
                     }
                 }
@@ -131,7 +133,15 @@ class MarkdownBuilder(context: Context) {
                 }
 
                 is Element.BlockCode -> {
-                    inSpans(BlockCodeSpan(colorOnSurface, colorSurface, cornerRadius, gap, element.type)) {
+                    inSpans(
+                        BlockCodeSpan(
+                            colorOnSurface,
+                            colorSurface,
+                            cornerRadius,
+                            gap,
+                            element.type
+                        )
+                    ) {
                         append(element.text)
                     }
                 }
