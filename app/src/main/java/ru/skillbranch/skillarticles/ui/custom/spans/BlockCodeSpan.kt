@@ -21,6 +21,7 @@ class BlockCodeSpan(
 ) : ReplacementSpan() {
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var rect = RectF()
+
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
 
@@ -45,22 +46,19 @@ class BlockCodeSpan(
             Element.BlockCode.Type.START -> {
                 paint.forBackground {
                     path.reset()
+                    rect.set(
+                        0f,
+                        top.toFloat() + padding,
+                        canvas.width.toFloat(),
+                        bottom.toFloat()
+                    )
                     path.addRoundRect(
-                        RectF(
-                            0f,
-                            top.toFloat() + padding,
-                            canvas.width.toFloat(),
-                            bottom.toFloat()
-                        ),
+                        rect,
                         floatArrayOf(
-                            cornerRadius,
-                            cornerRadius,
-                            cornerRadius,
-                            cornerRadius,
-                            0f,
-                            0f,
-                            0f,
-                            0f
+                            cornerRadius, cornerRadius,
+                            cornerRadius, cornerRadius,
+                            0f, 0f,
+                            0f, 0f
                         ),
                         Path.Direction.CW
                     )
@@ -70,22 +68,19 @@ class BlockCodeSpan(
             Element.BlockCode.Type.END -> {
                 paint.forBackground {
                     path.reset()
+                    rect.set(
+                        0f,
+                        top.toFloat(),
+                        canvas.width.toFloat(),
+                        bottom.toFloat() - padding
+                    )
                     path.addRoundRect(
-                        RectF(
-                            0f,
-                            top.toFloat(),
-                            canvas.width.toFloat(),
-                            bottom.toFloat() - padding
-                        ),
+                        rect,
                         floatArrayOf(
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            cornerRadius,
-                            cornerRadius,
-                            cornerRadius,
-                            cornerRadius
+                            0f, 0f,
+                            0f, 0f,
+                            cornerRadius, cornerRadius,
+                            cornerRadius, cornerRadius
                         ),
                         Path.Direction.CW
                     )
@@ -95,24 +90,24 @@ class BlockCodeSpan(
             Element.BlockCode.Type.MIDDLE -> {
                 paint.forBackground {
                     path.reset()
+                    rect.set(
+                        0f,
+                        top.toFloat(),
+                        canvas.width.toFloat(),
+                        bottom.toFloat()
+                    )
                     path.addRoundRect(
-                        RectF(
-                            0f,
-                            top.toFloat(),
-                            canvas.width.toFloat(),
-                            bottom.toFloat()
-                        ),
+                        rect,
                         floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f),
                         Path.Direction.CW
                     )
                     canvas.drawPath(path, paint)
                 }
             }
-
         }
 
         paint.forText {
-            canvas.drawText(text ?: "", start, end, x + padding, y.toFloat(), paint)
+            canvas.drawText(text, start, end, x + padding, y.toFloat(), paint)
         }
     }
 
