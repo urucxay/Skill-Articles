@@ -17,8 +17,17 @@ import ru.skillbranch.skillarticles.ui.custom.spans.SearchSpan
 
 class SearchBgHelper(
     context: Context,
-    private val focusListener: (Int, Int) -> Unit
+    private val focusListener: ((Int, Int) -> Unit)? = null,
+    mockDrawable: Drawable? = null //for mock drawable
 ) {
+
+    constructor(context: Context,
+                focusListener: ((Int, Int) -> Unit)? = null): this(
+        context,
+        focusListener,
+        null
+    )
+
     private val padding = context.dpToIntPx(4)
     private val radius = context.dpToPx(8)
     private val borderWidth = context.dpToIntPx(1)
@@ -27,7 +36,7 @@ class SearchBgHelper(
     private val alphaColor = ColorUtils.setAlphaComponent(secondaryColor, 160)
 
     val drawable: Drawable by lazy {
-        GradientDrawable().apply {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = FloatArray(8).apply { fill(radius, 0, size) }
             color = ColorStateList.valueOf(alphaColor)
@@ -36,7 +45,7 @@ class SearchBgHelper(
     }
 
     val drawableLeft: Drawable by lazy {
-        GradientDrawable().apply {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = floatArrayOf(
                 radius, radius, //Top left
@@ -50,7 +59,7 @@ class SearchBgHelper(
     }
 
     val drawableRight: Drawable by lazy {
-        GradientDrawable().apply {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             cornerRadii = floatArrayOf(
                 0f, 0f, //Top left
@@ -64,7 +73,7 @@ class SearchBgHelper(
     }
 
     val drawableMiddle: Drawable by lazy {
-        GradientDrawable().apply {
+        mockDrawable ?: GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             color = ColorStateList.valueOf(alphaColor)
             setStroke(borderWidth, secondaryColor)
@@ -100,7 +109,7 @@ class SearchBgHelper(
             endLine = layout.getLineForOffset(spanEnd)
 
             if (it is SearchFocusSpan) {
-                focusListener.invoke(layout.getLineTop(startLine), layout.getLineBottom(startLine))
+                focusListener?.invoke(layout.getLineTop(startLine), layout.getLineBottom(startLine))
             }
 
             topExtraPadding = 0
