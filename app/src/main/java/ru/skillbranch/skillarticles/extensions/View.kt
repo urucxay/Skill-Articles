@@ -1,39 +1,35 @@
 package ru.skillbranch.skillarticles.extensions
 
+import android.os.Parcelable
+import android.util.SparseArray
 import android.view.View
 import android.view.ViewGroup
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
+import androidx.core.view.*
 
 fun View.setMarginOptionally(
-    left: Int? = null,
-    top: Int? = null,
-    right: Int? = null,
-    bottom: Int? = null
+    left: Int = marginLeft,
+    top: Int = marginTop,
+    right: Int = marginRight,
+    bottom: Int = marginBottom
 ) {
-
-    layoutParams<ViewGroup.MarginLayoutParams> {
-        left?.let { leftMargin = it }
-        top?.let { topMargin = it }
-        right?.let { rightMargin = it }
-        bottom?.let { bottomMargin = it }
-    }
-
+    (layoutParams as ViewGroup.MarginLayoutParams).setMargins(left, top, right, bottom)
 }
 
-inline fun <reified T : ViewGroup.LayoutParams> View.layoutParams(block: T.() -> Unit) {
-//    if (layoutParams is T) block(layoutParams as T)
-    if (layoutParams is T) block.invoke(layoutParams as T)
+fun View.setPaddingOptionally(
+    left: Int = paddingLeft,
+    top: Int = paddingTop,
+    right: Int = paddingRight,
+    bottom: Int = paddingBottom
+) {
+    setPadding(left, top, right, bottom)
 }
 
-fun <T> T.also(block: (T) -> Unit) {
-    block(this)
+fun ViewGroup.saveChildViewStates(): SparseArray<Parcelable> {
+    val childViewStates = SparseArray<Parcelable>()
+    children.forEach { child -> child.saveHierarchyState(childViewStates) }
+    return childViewStates
 }
 
-fun <T> View.apply1(block: T.() -> Unit) {
-    block(this as T)
-}
-
-fun <T> T.apply2(block: T.() -> Unit) {
-      block()
+fun ViewGroup.restoreChildViewStates(childViewStates: SparseArray<Parcelable>) {
+    children.forEach { child -> child.restoreHierarchyState(childViewStates) }
 }
