@@ -6,11 +6,12 @@ import androidx.lifecycle.LiveData
 import ru.skillbranch.skillarticles.data.ArticleData
 import ru.skillbranch.skillarticles.data.ArticlePersonalInfo
 import ru.skillbranch.skillarticles.data.repositories.ArticleRepository
+import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
+import ru.skillbranch.skillarticles.data.repositories.clearContent
 import ru.skillbranch.skillarticles.extensions.data.toAppSettings
 import ru.skillbranch.skillarticles.extensions.data.toArticlePersonalInfo
 import ru.skillbranch.skillarticles.extensions.format
 import ru.skillbranch.skillarticles.extensions.indexesOf
-import ru.skillbranch.skillarticles.data.repositories.MarkdownParser
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
@@ -59,7 +60,7 @@ class ArticleViewModel(
         }
     }
 
-    override fun getArticleContent(): LiveData<String?> =
+    override fun getArticleContent(): LiveData<List<MarkdownElement>?> =
         repository.loadArticleContent(articleId)
 
     override fun getArticleData(): LiveData<ArticleData?> = repository.getArticle(articleId)
@@ -119,13 +120,18 @@ class ArticleViewModel(
 
     override fun handleSearchMode(isSearch: Boolean) {
 //        updateState { it.copy(isSearch = isSearch) }
-        updateState { it.copy(isSearch  = isSearch, isShowMenu = false, searchPosition = 0
-            , searchResults = mutableListOf()) }
+        updateState {
+            it.copy(
+                isSearch = isSearch, isShowMenu = false, searchPosition = 0
+                , searchResults = mutableListOf()
+            )
+        }
     }
 
     override fun handleSearch(query: String?) {
         query ?: return
-        if (clearContent == null) clearContent = MarkdownParser.clear(currentState.content)
+        if (clearContent == null && currentState.content.isNotEmpty()) clearContent =
+            currentState.content.clearContent()
         val result = clearContent
             .indexesOf(query)
             .map { it to it + query.length }
@@ -139,30 +145,34 @@ class ArticleViewModel(
     fun handleDownResult() {
         updateState { it.copy(searchPosition = it.searchPosition.inc()) }
     }
+
+    fun handleCopyCode() {
+        notify(Notify.TextMessage("Code copy to clipboard"))
+    }
 }
 
 data class ArticleState(
-        val isAuth: Boolean = false,
-        val isLoadingContent: Boolean = true,
-        val isLoadingReviews: Boolean = true,
-        val isLike: Boolean = false,
-        val isBookmark: Boolean = false,
-        val isShowMenu: Boolean = false,
-        val isBigText: Boolean = false,
-        val isDarkMode: Boolean = false,
-        val isSearch: Boolean = false,
-        val searchQuery: String? = null,
-        val searchResults: List<Pair<Int, Int>> = emptyList(),
-        val searchPosition: Int = 0,
-        val shareLink: String? = null,
-        val title: String? = null,
-        val category: String? = null,
-        val categoryIcon: Any? = null,
-        val date: String? = null,
-        val author: Any? = null,
-        val poster: String? = null,
-        val content: String? = null,
-        val reviews: List<Any> = emptyList()
+    val isAuth: Boolean = false,
+    val isLoadingContent: Boolean = true,
+    val isLoadingReviews: Boolean = true,
+    val isLike: Boolean = false,
+    val isBookmark: Boolean = false,
+    val isShowMenu: Boolean = false,
+    val isBigText: Boolean = false,
+    val isDarkMode: Boolean = false,
+    val isSearch: Boolean = false,
+    val searchQuery: String? = null,
+    val searchResults: List<Pair<Int, Int>> = emptyList(),
+    val searchPosition: Int = 0,
+    val shareLink: String? = null,
+    val title: String? = null,
+    val category: String? = null,
+    val categoryIcon: Any? = null,
+    val date: String? = null,
+    val author: Any? = null,
+    val poster: String? = null,
+    val content: List<MarkdownElement> = emptyList(),
+    val reviews: List<Any> = emptyList()
 ) : IViewModelState {
 
     override fun save(outState: Bundle) {
