@@ -24,7 +24,7 @@ class IconLinkSpan(
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var textWidth = 0f
-    private val dashs = DashPathEffect(floatArrayOf(dotWidth, dotWidth), 0f)
+    private val dashes = DashPathEffect(floatArrayOf(dotWidth, dotWidth), 0f)
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var path = Path()
@@ -44,14 +44,14 @@ class IconLinkSpan(
 
         paint.forLine {
             path.reset()
-            path.moveTo(textStart, bottom.toFloat())
-            path.lineTo(textStart + textWidth, bottom.toFloat())
+            path.moveTo(textStart, y + paint.descent())
+            path.lineTo(textStart + textWidth, y + paint.descent())
             canvas.drawPath(path, paint)
         }
 
         canvas.save()
-        val trY = bottom - linkDrawable.bounds.bottom
-        canvas.translate(x, trY.toFloat())
+        val trY = y + paint.descent() - linkDrawable.bounds.bottom
+        canvas.translate(x + padding / 2, trY)
         linkDrawable.draw(canvas)
         canvas.restore()
 
@@ -75,13 +75,12 @@ class IconLinkSpan(
         return (iconSize + padding + textWidth).toInt()
     }
 
-
     private inline fun Paint.forLine(block: () -> Unit) {
         val oldColor = color
         val oldStyle = style
         val oldWidth = strokeWidth
 
-        pathEffect = dashs
+        pathEffect = dashes
         color = textColor
         style = Paint.Style.STROKE
         strokeWidth = 0f
@@ -92,7 +91,6 @@ class IconLinkSpan(
         style = oldStyle
         strokeWidth = oldWidth
     }
-
 
     private inline fun Paint.forText(block: () -> Unit) {
         val oldColor = color
