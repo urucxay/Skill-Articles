@@ -49,8 +49,11 @@ class MarkdownImageView private constructor(
     lateinit var imageUrl: String
     lateinit var imageTitle: CharSequence
 
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val iv_image: ImageView
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val tv_title: MarkdownTextView
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     var tv_alt: TextView? = null
 
     @Px
@@ -80,6 +83,9 @@ class MarkdownImageView private constructor(
         color = lineColor
         strokeWidth = 0f
     }
+
+    private var isOpen = false
+    private var aspectRatio = 0f
 
     init {
         layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
@@ -117,11 +123,6 @@ class MarkdownImageView private constructor(
         imageTitle = title
         tv_title.setText(title, TextView.BufferType.SPANNABLE)
 
-        Glide.with(context)
-            .load(url)
-            .transform(AspectRationResizeTransform())
-            .into(iv_image)
-
 //        if (alt != null) {
         if (!alt.isNullOrEmpty()) {
             tv_alt = TextView(context).apply {
@@ -139,36 +140,16 @@ class MarkdownImageView private constructor(
         iv_image.setOnClickListener {
             if (tv_alt?.isVisible == true) animateHideAlt()
             else animateShowAlt()
-        }
-
-    }
-
-    private fun animateShowAlt() {
-        tv_alt?.isVisible = true
-        val endRadius = hypot(tv_alt?.width?.toFloat() ?: 0f, tv_alt?.height?.toFloat() ?: 0f)
-        if (tv_alt?.isVisible == true) {
-            val va = ViewAnimationUtils.createCircularReveal(
-                tv_alt,
-                tv_alt?.width ?: 0,
-                tv_alt?.height ?: 0,
-                0f,
-                endRadius
-            )
-            va.start()
+            isOpen = !isOpen
         }
     }
 
-    private fun animateHideAlt() {
-        val endRadius = hypot(tv_alt?.width?.toFloat() ?: 0f, tv_alt?.height?.toFloat() ?: 0f)
-        val va = ViewAnimationUtils.createCircularReveal(
-            tv_alt,
-            tv_alt?.width ?: 0,
-            tv_alt?.height ?: 0,
-            endRadius,
-            0f
-        )
-        va.doOnEnd { tv_alt?.isVisible = false }
-        va.start()
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        Glide.with(context)
+            .load(imageUrl)
+            .transform(AspectRationResizeTransform())
+            .into(iv_image)
     }
 
     @VisibleForTesting
@@ -183,7 +164,13 @@ class MarkdownImageView private constructor(
 
         val ms = MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY)
 
-        iv_image.measure(ms, heightMeasureSpec)
+        if (aspectRatio != 0f) {
+            val hms = MeasureSpec.makeMeasureSpec((width / aspectRatio).toInt(), MeasureSpec.EXACTLY)
+            iv_image.measure(ms, hms)
+        } else {
+            iv_image.measure(ms, heightMeasureSpec)
+        }
+
         tv_title.measure(ms, heightMeasureSpec)
         tv_alt?.measure(ms, heightMeasureSpec)
 
@@ -195,7 +182,7 @@ class MarkdownImageView private constructor(
         setMeasuredDimension(width, usedHeight)
     }
 
-    @VisibleForTesting
+    @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         var usedHeight = 0
         val bodyWidth = r - l - paddingLeft - paddingRight
@@ -250,21 +237,52 @@ class MarkdownImageView private constructor(
         )
     }
 
+    private fun animateShowAlt() {
+        tv_alt?.isVisible = true
+        val endRadius = hypot(tv_alt?.width?.toFloat() ?: 0f, tv_alt?.height?.toFloat() ?: 0f)
+        if (tv_alt?.isVisible == true) {
+            val va = ViewAnimationUtils.createCircularReveal(
+                tv_alt,
+                tv_alt?.width ?: 0,
+                tv_alt?.height ?: 0,
+                0f,
+                endRadius
+            )
+            va.start()
+        }
+    }
+
+    private fun animateHideAlt() {
+        val endRadius = hypot(tv_alt?.width?.toFloat() ?: 0f, tv_alt?.height?.toFloat() ?: 0f)
+        val va = ViewAnimationUtils.createCircularReveal(
+            tv_alt,
+            tv_alt?.width ?: 0,
+            tv_alt?.height ?: 0,
+            endRadius,
+            0f
+        )
+        va.doOnEnd { tv_alt?.isVisible = false }
+        va.start()
+    }
+
     //region Saving state
     private class SavedState : BaseSavedState, Parcelable {
 
-        var ssIsAltVisible: Boolean = false
+        var ssIsOpen = false
+        var ssAspectRatio = 0f
 
 
         constructor(superState: Parcelable?) : super(superState)
 
         constructor(src: Parcel) : super(src) {
-            ssIsAltVisible = src.readInt() == 1
+            ssIsOpen = src.readInt() == 1
+            ssAspectRatio = src.readFloat()
         }
 
         override fun writeToParcel(dst: Parcel, flags: Int) {
             super.writeToParcel(dst, flags)
-            dst.writeInt(if (ssIsAltVisible) 1 else 0)
+            dst.writeInt(if(ssIsOpen) 1 else 0)
+            dst.writeFloat(ssAspectRatio)
         }
 
         override fun describeContents() = 0
@@ -277,13 +295,16 @@ class MarkdownImageView private constructor(
 
     override fun onSaveInstanceState(): Parcelable? {
         val savedState = SavedState(super.onSaveInstanceState())
-        savedState.ssIsAltVisible = tv_alt?.isVisible ?: false
+        savedState.ssIsOpen = isOpen
+        savedState.ssAspectRatio = (iv_image.width.toFloat() / iv_image.height)
         return savedState
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is SavedState) {
-            tv_alt?.isVisible = state.ssIsAltVisible
+            isOpen = state.ssIsOpen
+            aspectRatio = state.ssAspectRatio
+            tv_alt?.isVisible = isOpen
         }
         super.onRestoreInstanceState(state)
     }
@@ -297,6 +318,7 @@ class MarkdownImageView private constructor(
     }
     //endregion
 }
+
 
 class AspectRationResizeTransform : BitmapTransformation() {
     private val ID = "ru.skillbranch.skillarticles.glide.AspectRatioResizeTransform"

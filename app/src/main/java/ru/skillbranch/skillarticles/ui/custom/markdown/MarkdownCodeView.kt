@@ -148,9 +148,7 @@ class MarkdownCodeView private constructor(
         setPadding(padding)
         background = GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
-            cornerRadii = FloatArray(8).apply {
-                fill(radius, 0, size)
-            }
+            cornerRadii = FloatArray(8).apply { fill(radius, 0, size) }
             color = ColorStateList.valueOf(bgColor)
         }
     }
@@ -160,6 +158,7 @@ class MarkdownCodeView private constructor(
         var usedHeight = 0
         val width = View.getDefaultSize(suggestedMinimumWidth, widthMeasureSpec)
         measureChild(sv_scroll, widthMeasureSpec, heightMeasureSpec)
+        measureChild(iv_copy, widthMeasureSpec, heightMeasureSpec)
 
         usedHeight += sv_scroll.measuredHeight + paddingTop + paddingBottom
         setMeasuredDimension(width, usedHeight)
@@ -249,7 +248,7 @@ class MarkdownCodeView private constructor(
         super.onRestoreInstanceState(state)
     }
 
-    private class SavedState : BaseSavedState, Parcelable {
+    private class SavedState : BaseSavedState {
 
         var ssIsDark: Boolean = false
         var ssIsManual: Boolean = false
