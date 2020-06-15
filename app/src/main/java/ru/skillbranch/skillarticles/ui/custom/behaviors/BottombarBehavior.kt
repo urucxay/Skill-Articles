@@ -5,7 +5,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.animation.DecelerateInterpolator
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.math.MathUtils
 import androidx.core.view.ViewCompat
 import com.google.android.material.snackbar.Snackbar
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
@@ -25,7 +24,7 @@ class BottombarBehavior : CoordinatorLayout.Behavior<Bottombar>() {
         dependency: View
     ): Boolean {
         if (dependency is Snackbar.SnackbarLayout) {
-            updateSnackbar(child, dependency)
+//            updateSnackbar(child, dependency)
         }
         return super.layoutDependsOn(parent, child, dependency)
     }
@@ -47,28 +46,27 @@ class BottombarBehavior : CoordinatorLayout.Behavior<Bottombar>() {
         return true
     }
 
-    override fun onStopNestedScroll(
-        coordinatorLayout: CoordinatorLayout,
-        child: Bottombar,
-        target: View,
-        type: Int
-    ) {
-
-        if (!isSnappingEnabled)
-            return
-
-        if (lastStartedType == ViewCompat.TYPE_TOUCH || type == ViewCompat.TYPE_NON_TOUCH) {
-            val currTranslation = child.translationY
-            val childHalfHeight = child.height * 0.5f
-
-            if (currTranslation >= childHalfHeight) {
-                animateBarVisibility(child, isVisible = false)
-            }
-            else {
-                animateBarVisibility(child, isVisible = true)
-            }
-        }
-    }
+//    override fun onStopNestedScroll(
+//        coordinatorLayout: CoordinatorLayout,
+//        child: Bottombar,
+//        target: View,
+//        type: Int
+//    ) {
+//
+//        if (!isSnappingEnabled)
+//            return
+//
+//        if (lastStartedType == ViewCompat.TYPE_TOUCH || type == ViewCompat.TYPE_NON_TOUCH) {
+//            val currTranslation = child.translationY
+//            val childHalfHeight = child.height * 0.5f
+//
+//            if (currTranslation >= childHalfHeight) {
+//                animateBarVisibility(child, isVisible = false)
+//            } else {
+//                animateBarVisibility(child, isVisible = true)
+//            }
+//        }
+//    }
 
     override fun onNestedPreScroll(
         coordinatorLayout: CoordinatorLayout,

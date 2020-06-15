@@ -2,9 +2,7 @@ package ru.skillbranch.skillarticles.ui.custom.behaviors
 
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.ViewCompat
 import androidx.core.view.marginRight
-import com.google.android.material.snackbar.Snackbar
 import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
 
@@ -31,8 +29,8 @@ class SubmenuBehavior : CoordinatorLayout.Behavior<ArticleSubmenu>() {
         }
     }
 
-    private fun animate(child: ArticleSubmenu, dependency: Bottombar) {
-        val fraction = dependency.translationY / dependency.minimumHeight
+    private fun animate(child: ArticleSubmenu, dependency: View) {
+        val fraction = dependency.translationY / dependency.height
         child.translationX = (child.width + child.marginRight) * fraction
     }
 
