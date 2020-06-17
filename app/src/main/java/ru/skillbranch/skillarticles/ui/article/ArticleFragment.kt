@@ -29,6 +29,8 @@ import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.hideKeyboard
 import ru.skillbranch.skillarticles.extensions.setMarginOptionally
 import ru.skillbranch.skillarticles.ui.base.*
+import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
+import ru.skillbranch.skillarticles.ui.custom.Bottombar
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
@@ -48,6 +50,8 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
 
     override val layout: Int = R.layout.fragment_article
     override val binding: ArticleBinding by lazy { ArticleBinding() }
+
+    //
     override val prepareToolbar: (ToolbarBuilder.() -> Unit) = {
         this.setTitle(args.title)
             .setSubtitle(args.category)
@@ -68,10 +72,12 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     }
 
     private val bottombar
-        get() = root.bottombar
+//        get() = root.bottombar
+        get() = root.findViewById<Bottombar>(R.id.bottombar)
 
     private val submenu
-        get() = root.submenu
+//        get() = root.submenu
+        get() = root.findViewById<ArticleSubmenu>(R.id.submenu)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
