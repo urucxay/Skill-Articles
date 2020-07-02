@@ -3,7 +3,13 @@ package ru.skillbranch.skillarticles.data.repositories
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import ru.skillbranch.skillarticles.data.*
+import androidx.paging.DataSource
+import androidx.paging.ItemKeyedDataSource
+import ru.skillbranch.skillarticles.data.LocalDataHolder
+import ru.skillbranch.skillarticles.data.NetworkDataHolder
+import ru.skillbranch.skillarticles.data.models.*
+import java.lang.Thread.sleep
+import kotlin.math.abs
 
 object ArticleRepository {
     private val local = LocalDataHolder
@@ -15,6 +21,7 @@ object ArticleRepository {
             else MarkdownParser.parse(it)
         } //5s delay from network
     }
+
     fun getArticle(articleId: String): LiveData<ArticleData?> {
         return local.findArticle(articleId) //2s delay from db
     }
