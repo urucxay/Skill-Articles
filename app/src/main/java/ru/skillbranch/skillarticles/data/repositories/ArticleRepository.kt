@@ -65,7 +65,7 @@ object ArticleRepository {
     fun sendComment(articleId: String, comment: String, answerToSlug: String?) {
         network.sendMessage(
             articleId, comment, answerToSlug,
-            User("777", "John Doe", "https://skill-branch.ru/img/mail/bot/android-cathegory.png")
+            User("777", "John Doe", "https://skill-branch.ru/img/mail/bot/android-category.png")
         )
         local.incrementCommentsCount(articleId)
     }
