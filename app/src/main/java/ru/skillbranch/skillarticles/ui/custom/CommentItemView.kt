@@ -63,6 +63,7 @@ class CommentItemView(
         addView(tv_author)
 
         tv_body = TextView(context).apply {
+            id = R.id.tv_comment_body
             textSize = 14f
             setTextColor(grayColor)
         }
