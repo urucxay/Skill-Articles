@@ -10,6 +10,4 @@ data class CommentItemData(
     val date: Date,
     val slug:String,
     val answerTo:String? = null
-) {
-
-}
+)

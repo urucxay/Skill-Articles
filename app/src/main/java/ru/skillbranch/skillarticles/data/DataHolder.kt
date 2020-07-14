@@ -22,7 +22,11 @@ object LocalDataHolder {
         if (localArticles[articleId] == null) {
             Log.e("DataHolder", "findArticle $articleId: ");
             val article = localArticleItems.find { it.id == articleId }
-            localArticles[articleId] = MutableLiveData(EntityGenerator.generateArticle(article ?: EntityGenerator.createArticleItem(articleId)))
+            localArticles[articleId] = MutableLiveData(
+                EntityGenerator.generateArticle(
+                    article ?: EntityGenerator.createArticleItem(articleId)
+                )
+            )
         }
         return localArticles[articleId]!!
     }
@@ -81,7 +85,8 @@ object NetworkDataHolder {
         val mutableList =
             commentsData[articleId] ?: error("Comments for article id : $articleId not found")
         val index =
-            if (answerToSlug == null) 0 else mutableList.indexOfFirst { it.slug == answerToSlug }.inc()
+            if (answerToSlug == null) 0 else mutableList.indexOfFirst { it.slug == answerToSlug }
+                .inc()
         val mess = mutableList.getOrNull(index.dec())
         val id = "${mutableList.size}"
         mutableList.add(

@@ -256,7 +256,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             if (it) submenu.open() else submenu.close()
         }
 
-        private var isDarkMode: Boolean by RenderProp(false, false) {
+        private var isDarkMode: Boolean by RenderProp(value = false, needInit = false) {
             submenu.switch_mode.isChecked = it
             root.delegate.localNightMode = if (it) AppCompatDelegate.MODE_NIGHT_YES
             else AppCompatDelegate.MODE_NIGHT_NO
@@ -279,10 +279,10 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             }
         }
 
-        private var searchResults: List<Pair<Int, Int>> by RenderProp(emptyList<Pair<Int, Int>>())
+        private var searchResults: List<Pair<Int, Int>> by RenderProp(emptyList())
         private var searchPosition: Int by RenderProp(0)
 
-        private var content: List<MarkdownElement> by RenderProp(emptyList<MarkdownElement>()) {
+        private var content: List<MarkdownElement> by RenderProp(emptyList()) {
             tv_text_content.isLoading = it.isEmpty()
             tv_text_content.setContent(it)
             if (it.isNotEmpty()) {
