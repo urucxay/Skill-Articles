@@ -269,7 +269,10 @@ class ArticleItemView constructor(
         )
     }
 
-    fun bind(item: ArticleItemData) {
+    fun bind(
+        item: ArticleItemData,
+        listener: (ArticleItemData, Boolean) -> Unit
+    ) {
 
         tv_date.text = item.date.format()
         tv_author.text = item.author
@@ -290,7 +293,9 @@ class ArticleItemView constructor(
         tv_description.text = item.description
         tv_likes_count.text = "${item.likeCount}"
         tv_comments_count.text = "${item.commentCount}"
-        tv_read_duration.text = "${item.readDuration} min read"
-
+        tv_read_duration.text = context.getString(R.string.min_to_read, item.readDuration)
+        iv_bookmark.isChecked = item.isBookmark
+        iv_bookmark.setOnClickListener { listener(item, true) }
+        this.setOnClickListener { listener(item, false) }
     }
 }
