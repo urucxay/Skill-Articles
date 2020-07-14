@@ -24,3 +24,18 @@ fun View.setPaddingOptionally(
 ) {
     setPadding(left, top, right, bottom)
 }
+
+
+//лисенер для глобальной остановки всех кликов
+//например, когда надо, чтобы нельзя было одновременно нажать две кнопки
+private var lastClickTimestamp = 0L
+fun View.setThrottledClickListener(delay: Long = 200L, clickListener: (View) -> Unit) {
+    setOnClickListener {
+        val currentTimestamp = System.currentTimeMillis()
+        val delta = currentTimestamp - lastClickTimestamp
+        if (delta !in 0L..delay) {
+            lastClickTimestamp = currentTimestamp
+            clickListener(this)
+        }
+    }
+}
