@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.widget.SearchView
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_articles.*
@@ -22,22 +23,28 @@ import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 
 class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
 
-    override val viewModel: ArticlesViewModel by viewModels()
+    override val viewModel: ArticlesViewModel by activityViewModels()
     override val layout: Int = R.layout.fragment_articles
     override val binding: ArticleBinding by lazy { ArticleBinding() }
+    private val args: ArticlesFragmentArgs by navArgs()
 
-    private val articlesAdapter = ArticlesAdapter { item ->
-        val action = ArticlesFragmentDirections.actionNavArticlesToPageArticle(
-            item.id,
-            item.author,
-            item.authorAvatar,
-            item.category,
-            item.categoryIcon,
-            item.poster,
-            item.title,
-            item.date
-        )
-        viewModel.navigate(NavigationCommand.To(action.actionId, action.arguments))
+    private val articlesAdapter = ArticlesAdapter { item, isToggleBookmark ->
+
+        if (isToggleBookmark) {
+            viewModel.handleToggleBookmark(item.id, item.isBookmark)
+        } else {
+            val action = ArticlesFragmentDirections.actionToPageArticle(
+                item.id,
+                item.author,
+                item.authorAvatar,
+                item.category,
+                item.categoryIcon,
+                item.poster,
+                item.title,
+                item.date
+            )
+            viewModel.navigate(NavigationCommand.To(action.actionId, action.arguments))
+        }
     }
 
     override val prepareToolbar: (ToolbarBuilder.() -> Unit) = {
@@ -105,12 +112,10 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
             addItemDecoration(DividerItemDecoration(context, LinearLayoutManager.VERTICAL))
         }
 
-        viewModel.observeList(viewLifecycleOwner) {
+        viewModel.observeList(viewLifecycleOwner, args.isBookmarks) {
             articlesAdapter.submitList(it)
         }
-
     }
-
 
     inner class ArticleBinding : Binding() {
         var isFocusedSearch: Boolean = false

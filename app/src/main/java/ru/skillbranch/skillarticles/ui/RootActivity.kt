@@ -10,12 +10,14 @@ import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.selectDestination
 import ru.skillbranch.skillarticles.ui.base.BaseActivity
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
+import ru.skillbranch.skillarticles.viewmodels.RootState
 import ru.skillbranch.skillarticles.viewmodels.RootViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 import ru.skillbranch.skillarticles.viewmodels.base.Notify
 
 class RootActivity : BaseActivity<RootViewModel>() {
+    private var isAuth : Boolean = false
 
     override val layout: Int = R.layout.activity_root
     public override val viewModel: RootViewModel by viewModels()
@@ -43,7 +45,7 @@ class RootActivity : BaseActivity<RootViewModel>() {
             // if destination change set select bottom navigation item
             nav_view.selectDestination(destination)
 
-            if (viewModel.currentState.isAuth && destination.id == R.id.nav_auth) {
+            if (isAuth && destination.id == R.id.nav_auth) {
                 controller.popBackStack()
                 // private_destination хранит destination, на который нужно попасть после авторизации
                 val private = arguments?.get("private_destination") as Int?
@@ -81,6 +83,9 @@ class RootActivity : BaseActivity<RootViewModel>() {
         snackbar.show()
     }
 
-    override fun subscribeOnState(state: IViewModelState) { }
+    override fun subscribeOnState(state: IViewModelState) {
+        state as RootState
+        isAuth = state.isAuth
+    }
 
 }

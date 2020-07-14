@@ -29,17 +29,26 @@ class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     private val listData = Transformations.switchMap(state) {
+        val searchFn = if (!it.isBookmark) repository::searchArticles
+        else repository::searchBookmarkedArticles
+
+        val defaultFn = if (!it.isBookmark) repository::allArticles
+        else repository::allBookmarkedArticles
+
         when {
-            it.isSearch && !it.searchQuery.isNullOrBlank() ->
-                buildPagedList(repository.searchArticles(it.searchQuery))
-            else -> buildPagedList(repository.allArticles())
+            it.isSearch && !it.searchQuery.isNullOrBlank() -> buildPagedList(
+                searchFn(it.searchQuery)
+            )
+            else -> buildPagedList(defaultFn())
         }
     }
 
     fun observeList(
         owner: LifecycleOwner,
+        isBookmark: Boolean = false,
         onChange: (list: PagedList<ArticleItemData>) -> Unit
     ) {
+        updateState { it.copy(isBookmark = isBookmark) }
         listData.observe(owner, Observer { onChange(it) })
     }
 
@@ -72,6 +81,11 @@ class ArticlesViewModel(handle: SavedStateHandle) :
     fun handleSearch(query: String?) {
         query ?: return
         updateState { it.copy(searchQuery = query) }
+    }
+
+    fun handleToggleBookmark(id: String, isBookmark: Boolean) {
+        repository.updateBookmark(id, !isBookmark)
+        listData.value?.dataSource?.invalidate()
     }
 
     private fun zeroLoadingHandle() {
@@ -117,8 +131,22 @@ class ArticlesViewModel(handle: SavedStateHandle) :
 data class ArticlesState(
     val isSearch: Boolean = false,
     val searchQuery: String? = null,
-    val isLoading: Boolean = true
-) : IViewModelState
+    val isLoading: Boolean = true,
+    val isBookmark: Boolean = false
+) : IViewModelState {
+
+    override fun save(outState: SavedStateHandle) {
+        outState.set("isSearch", isSearch)
+        outState.set("searchQuery", searchQuery)
+    }
+
+    override fun restore(savedState: SavedStateHandle): IViewModelState {
+        return copy(
+            isSearch = savedState["isSearch"] ?: false,
+            searchQuery = savedState["searchQuery"]
+        )
+    }
+}
 
 class ArticleBoundaryCallback(
     private val zeroLoadingHandle: () -> Unit,
