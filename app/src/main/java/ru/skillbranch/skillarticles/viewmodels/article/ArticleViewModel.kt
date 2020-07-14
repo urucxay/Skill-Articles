@@ -239,7 +239,6 @@ data class ArticleState(
 ) : IViewModelState {
 
     override fun save(outState: SavedStateHandle) {
-        //TODO save state
         outState.set("isSearch", isSearch)
         outState.set("searchQuery", searchQuery)
         outState.set("searchResults", searchResults)
@@ -247,7 +246,6 @@ data class ArticleState(
     }
 
     override fun restore(savedState: SavedStateHandle): IViewModelState {
-        //TODO restore state
         return copy(
             isSearch = savedState["isSearch"] ?: false,
             searchQuery = savedState["searchQuery"],

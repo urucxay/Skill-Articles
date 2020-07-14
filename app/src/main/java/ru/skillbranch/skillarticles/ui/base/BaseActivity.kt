@@ -91,11 +91,11 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
 }
 
 class ToolbarBuilder {
-    var title: String? = null
-    var subtitle: String? = null
-    var logo: String? = null
-    var visibility: Boolean = true
-    val items: MutableList<MenuItemHolder> = mutableListOf()
+    private var title: String? = null
+    private var subtitle: String? = null
+    private var logo: String? = null
+    private var visibility: Boolean = true
+    private val items: MutableList<MenuItemHolder> = mutableListOf()
 
     fun setTitle(title: String): ToolbarBuilder {
         this.title = title
@@ -122,6 +122,8 @@ class ToolbarBuilder {
         return this
     }
 
+    fun getItems() = items
+
     fun invalidate(): ToolbarBuilder {
         this.title = null
         this.subtitle = null
@@ -138,7 +140,7 @@ class ToolbarBuilder {
 
     fun build(context: FragmentActivity) {
 
-        //show appbar if hidden due to scroll behavior
+        //раскрывает аппбар при открытии статьи если он был скрыт во время скролла списка статей
         context.appbar.setExpanded(true, true)
 
         with(context.toolbar) {

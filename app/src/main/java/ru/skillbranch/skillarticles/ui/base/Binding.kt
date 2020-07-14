@@ -53,6 +53,7 @@ abstract class Binding {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <A, B, C> dependsOn(
         vararg fields: KProperty<*>,
         onChange: (A, B, C) -> Unit
@@ -69,6 +70,5 @@ abstract class Binding {
                 )
             }
         }
-
     }
 }

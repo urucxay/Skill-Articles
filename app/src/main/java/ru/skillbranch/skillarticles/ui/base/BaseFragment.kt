@@ -3,6 +3,7 @@ package ru.skillbranch.skillarticles.ui.base
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
+import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.android.synthetic.main.activity_root.*
 import ru.skillbranch.skillarticles.ui.RootActivity
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
@@ -18,7 +19,7 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>> : Fragment()
     open val prepareToolbar: (ToolbarBuilder.() -> Unit)? = null
     open val prepareBottombar: (BottombarBuilder.() -> Unit)? = null
 
-    val toolbar
+    val toolbar: MaterialToolbar
         get() = root.toolbar
 
     //set listeners, tuning views
@@ -72,15 +73,14 @@ abstract class BaseFragment<T : BaseViewModel<out IViewModelState>> : Fragment()
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
-        if (root.toolbarBuilder.items.isNotEmpty()) {
-            for ((index, menuHolder) in root.toolbarBuilder.items.withIndex()) {
+        if (root.toolbarBuilder.getItems().isNotEmpty()) {
+            for ((index, menuHolder) in root.toolbarBuilder.getItems().withIndex()) {
                 val item = menu.add(0, menuHolder.menuId, index, menuHolder.title)
                 item.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW)
                     .setIcon(menuHolder.icon)
                     .setOnMenuItemClickListener {
                         menuHolder.clickListener?.invoke(it)?.let { true } ?: false
                     }
-
                 if (menuHolder.actionViewLayout != null) item.setActionView(menuHolder.actionViewLayout)
             }
         } else menu.clear()
