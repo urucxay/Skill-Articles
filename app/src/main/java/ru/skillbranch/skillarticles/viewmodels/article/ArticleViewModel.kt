@@ -142,7 +142,6 @@ class ArticleViewModel(
     }
 
     override fun handleSearchMode(isSearch: Boolean) {
-//        updateState { it.copy(isSearch = isSearch) }
         updateState {
             it.copy(
                 isSearch = isSearch, isShowMenu = false, searchPosition = 0
@@ -173,12 +172,21 @@ class ArticleViewModel(
         notify(Notify.TextMessage("Code copy to clipboard"))
     }
 
-    override fun handleSendComment(comment: String) {
-        if (!currentState.isAuth) navigate(NavigationCommand.StartLogin())
-        viewModelScope.launch {
-            repository.sendComment(articleId, comment, currentState.answerToSlug)
-            withContext(Dispatchers.Main) {
-                updateState { it.copy(answerTo = null, answerToSlug = null) }
+    override fun handleSendComment(comment: String?) {
+        if (comment.isNullOrBlank()) {
+            notify(Notify.TextMessage("Comment must be not empty"))
+            return
+        }
+
+        updateState { it.copy(commentText = comment) }
+        if (!currentState.isAuth) {
+            navigate(NavigationCommand.StartLogin())
+        } else {
+            viewModelScope.launch {
+                repository.sendComment(articleId, currentState.commentText!!, currentState.answerToSlug)
+                withContext(Dispatchers.Main) {
+                    updateState { it.copy(answerTo = null, answerToSlug = null, commentText = null) }
+                }
             }
         }
     }
@@ -203,7 +211,7 @@ class ArticleViewModel(
     }
 
     fun handleClearComment() {
-        updateState { it.copy(answerTo = null, answerToSlug = null) }
+        updateState { it.copy(answerTo = null, answerToSlug = null, commentText = null) }
     }
 
     fun handleReplyTo(slug: String, name: String) {
@@ -235,7 +243,8 @@ data class ArticleState(
     val commentsCount: Int = 0,
     val answerTo: String? = null,
     val answerToSlug: String? = null,
-    val showBottomBar: Boolean = true
+    val showBottomBar: Boolean = true,
+    val commentText: String? = null
 ) : IViewModelState {
 
     override fun save(outState: SavedStateHandle) {
@@ -243,6 +252,9 @@ data class ArticleState(
         outState.set("searchQuery", searchQuery)
         outState.set("searchResults", searchResults)
         outState.set("searchPosition", searchPosition)
+//        outState.set("commentText", commentText)
+        outState.set("answerTo", answerTo)
+        outState.set("answerToSlug", answerToSlug)
     }
 
     override fun restore(savedState: SavedStateHandle): IViewModelState {
@@ -250,7 +262,10 @@ data class ArticleState(
             isSearch = savedState["isSearch"] ?: false,
             searchQuery = savedState["searchQuery"],
             searchResults = savedState["searchResults"] ?: emptyList(),
-            searchPosition = savedState["searchPosition"] ?: 0
+            searchPosition = savedState["searchPosition"] ?: 0,
+//            commentText = savedState["commentText"],
+            answerTo = savedState["answerTo"],
+            answerToSlug = savedState["answerToSlug"]
         )
     }
 }

@@ -58,7 +58,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     override val layout: Int = R.layout.fragment_article
     override val binding: ArticleBinding by lazy { ArticleBinding() }
 
-    //
     override val prepareToolbar: (ToolbarBuilder.() -> Unit) = {
         this.setTitle(args.title)
             .setSubtitle(args.category)
@@ -119,8 +118,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         et_comment.setOnEditorActionListener { view, _, _ ->
             root.hideKeyboard(view)
             viewModel.handleSendComment(view.text.toString())
-            view.text = null
-            view.clearFocus()
             true
         }
 
@@ -246,7 +243,10 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         var isFocusedSearch = false
         var searchQuery: String? = null
 
-        private var isLoadingContent by RenderProp(true)
+        private var isLoadingContent by RenderProp(false) {
+            tv_text_content.isLoading = it
+            if (it) setupCopyListener()
+        }
         private var isLike: Boolean by RenderProp(false) { bottombar.btn_like.isChecked = it }
         private var isBookmark: Boolean by RenderProp(false) {
             bottombar.btn_bookmark.isChecked = it
@@ -294,6 +294,11 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         private var isShowBottombar by RenderProp(true) {
             if (it) bottombar.show() else bottombar.hide()
             if (submenu.isOpen) submenu.isVisible = it
+        }
+
+        private var commentText by RenderProp("") {
+            et_comment.setText(it)
+            if (it.isBlank() && et_comment.hasFocus()) et_comment.clearFocus()
         }
 
         override val afterInflated: (() -> Unit)? = {
@@ -346,6 +351,7 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             searchPosition = data.searchPosition
             answerTo = data.answerTo ?: "Comment"
             isShowBottombar = data.showBottomBar
+            commentText = data.commentText ?: ""
         }
 
         override fun saveUi(outState: Bundle) {
