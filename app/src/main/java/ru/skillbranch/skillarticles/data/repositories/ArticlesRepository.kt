@@ -23,7 +23,7 @@ object ArticlesRepository {
 
     fun searchBookmarkedArticles(searchQuery: String) =
         ArticlesDataFactory(
-            ArticleStrategy.SearchArticle(
+            ArticleStrategy.SearchBookmarkArticle(
                 ::searchBookmarkArticlesByTitle,
                 searchQuery
             )
