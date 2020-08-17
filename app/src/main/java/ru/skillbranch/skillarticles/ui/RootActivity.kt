@@ -24,6 +24,7 @@ class RootActivity : BaseActivity<RootViewModel>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //setup top level destinations
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_articles,

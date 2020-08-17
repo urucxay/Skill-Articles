@@ -90,6 +90,11 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
     }
 }
 
+/***
+ * Toolbar builder for customizing common toolbar for every screen.
+ * You can setup title and subtitle, set image for logo with URL.
+ * Also you can add items to the toolbar menu and customize them.
+ */
 class ToolbarBuilder {
     private var title: String? = null
     private var subtitle: String? = null
@@ -140,12 +145,14 @@ class ToolbarBuilder {
 
     fun build(context: FragmentActivity) {
 
-        //раскрывает аппбар при открытии статьи если он был скрыт во время скролла списка статей
+        //expand appbar if it was hidden while scrolling on the previous screen
         context.appbar.setExpanded(true, true)
 
         with(context.toolbar) {
             if (this@ToolbarBuilder.title != null) title = this@ToolbarBuilder.title
             subtitle = this@ToolbarBuilder.subtitle
+
+            //setup parameters for logo image view if logo != null
             if (this@ToolbarBuilder.logo != null) {
                 val logoSize = context.dpToIntPx(40)
                 val logoMargin = context.dpToIntPx(16)
@@ -177,6 +184,9 @@ class ToolbarBuilder {
     }
 }
 
+/***
+ * This class describes menu item for toolbar.
+ */
 data class MenuItemHolder(
     val title: String,
     val menuId: Int,
@@ -185,6 +195,9 @@ data class MenuItemHolder(
     val clickListener: ((MenuItem) -> Unit)? = null
 )
 
+/***
+ * Bottombar builder for customizing common bottombar for every screen.
+ */
 class BottombarBuilder {
     private var visible: Boolean = true
     private val views = mutableListOf<Int>()
@@ -222,7 +235,7 @@ class BottombarBuilder {
             tempViews.clear()
         }
 
-        //add new bottom bar views
+        //add new bottombar views
         if (views.isNotEmpty()) {
             val inflater = LayoutInflater.from(context)
             views.forEach {
@@ -234,7 +247,7 @@ class BottombarBuilder {
 
         with(context.nav_view) {
             isVisible = visible
-            //show bottombar if hidden due to scroll behavior
+            //show the bottombar if it was hidden while scrolling on the previous screen
             ((layoutParams as CoordinatorLayout.LayoutParams).behavior as HideBottomViewOnScrollBehavior)
                 .slideUp(this)
         }
