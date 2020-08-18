@@ -11,7 +11,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import ru.skillbranch.skillarticles.R
-import ru.skillbranch.skillarticles.data.models.ArticleItemData
+import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.extensions.attrValue
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
 import ru.skillbranch.skillarticles.extensions.format
@@ -270,8 +270,8 @@ class ArticleItemView constructor(
     }
 
     fun bind(
-        item: ArticleItemData,
-        listener: (ArticleItemData, Boolean) -> Unit
+        item: ArticleItem,
+        listener: (ArticleItem, Boolean) -> Unit
     ) {
 
         tv_date.text = item.date.format()
