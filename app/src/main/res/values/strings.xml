@@ -23,4 +23,5 @@ Nullam sem sem, rhoncus vitae porttitor et, pretium eu ipsum. Sed semper semper 
     <string name="menu_search_title">Search</string>
 
     <string name="min_to_read">%1$d min to read</string>
+    <string name="menu_filter_title">Filter</string>
 </resources>
