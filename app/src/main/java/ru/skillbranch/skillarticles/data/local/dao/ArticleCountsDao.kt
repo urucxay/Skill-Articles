@@ -42,6 +42,14 @@ interface ArticleCountsDao : BaseDao<ArticleCounts> {
 
     @Query(
         """
+        UPDATE article_counts SET comments = comments+1, updated_at = CURRENT_TIMESTAMP
+        WHERE article_id = :articleId
+    """
+    )
+    fun incrementCommentsCount(articleId: String)
+
+    @Query(
+        """
             SELECT comments FROM article_counts
             WHERE article_id = :articleId
         """
