@@ -52,7 +52,7 @@ class ArticleViewModel(
                 isBookmark = article.isBookmark,
                 isLike = article.isLike,
                 content = article.content ?: emptyList(),
-                isLoadingContent = article.content == null,
+                isLoadingContent = article.content == null
             )
         }
 

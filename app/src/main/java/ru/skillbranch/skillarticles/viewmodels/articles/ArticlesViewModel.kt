@@ -146,7 +146,7 @@ data class ArticlesState(
     val isLoading: Boolean = true,
     val isBookmark: Boolean = false,
     val selectedCategories: List<String> = emptyList(),
-    val isHashtagSearch: Boolean = false,
+    val isHashtagSearch: Boolean = false
 ) : IViewModelState {
 
     override fun save(outState: SavedStateHandle) {

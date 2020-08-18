@@ -52,7 +52,7 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
                 title = "Filter",
                 menuId = R.id.action_filter,
                 icon = R.drawable.ic_filter,
-                actionViewLayout = null,
+                actionViewLayout = null
             ) {
                 val action = ArticlesFragmentDirections.choseCategory(
                     binding.categories.toTypedArray(),

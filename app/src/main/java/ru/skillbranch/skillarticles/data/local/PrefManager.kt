@@ -2,6 +2,7 @@ package ru.skillbranch.skillarticles.data.local
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.liveData
 import androidx.preference.PreferenceManager
@@ -43,8 +44,8 @@ object PrefManager {
     }
 
 
-    fun getAuthStatus() = liveData { emit(isAuth ?: false) }
+    fun getAuthStatus(): LiveData<Boolean> = liveData { emit(isAuth ?: false) }
 
-    private fun getMode() = liveData { emit(isDarkMode ?: false) }
-    private fun getTextMode() = liveData { emit(isBigText ?: false) }
+    private fun getMode(): LiveData<Boolean> = liveData { emit(isDarkMode ?: false) }
+    private fun getTextMode(): LiveData<Boolean> = liveData { emit(isBigText ?: false) }
 }

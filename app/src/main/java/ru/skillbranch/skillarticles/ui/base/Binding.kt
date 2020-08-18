@@ -84,7 +84,7 @@ abstract class Binding {
             delegates[it]?.addListener {
                 onChange(
                     delegates[names[0]]?.value as A,
-                    delegates[names[1]]?.value as B,
+                    delegates[names[1]]?.value as B
                 )
             }
         }
