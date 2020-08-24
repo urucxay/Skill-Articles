@@ -61,7 +61,7 @@ object ArticleRepository : IArticleRepository {
     }
 
     override fun isAuth(): LiveData<Boolean> {
-        return preferences.getAuthStatus()
+        return preferences.isAuthLiveData
     }
 
     override fun updateSettings(settings: AppSettings) {
