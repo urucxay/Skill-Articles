@@ -13,8 +13,8 @@ object DBManager {
 
     val db = Room.databaseBuilder(
         App.applicationContext(),
-        AppDB::class.java,
-        AppDB.DATABASE_NAME
+        AppDb::class.java,
+        AppDb.DATABASE_NAME
     ).build()
 
 
@@ -29,12 +29,12 @@ object DBManager {
         ArticleTagXRef::class,
         ArticleContent::class
     ],
-    version = AppDB.DATABASE_VERSION,
+    version = AppDb.DATABASE_VERSION,
     exportSchema = true,
     views = [ArticleItem::class, ArticleFull::class]
 )
 @TypeConverters(DateConverter::class)
-abstract class AppDB : RoomDatabase() {
+abstract class AppDb : RoomDatabase() {
     companion object {
         const val DATABASE_NAME = BuildConfig.APPLICATION_ID + ".db"
         const val DATABASE_VERSION = 1
