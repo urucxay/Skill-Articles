@@ -4,11 +4,14 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SearchView
+import androidx.core.text.buildSpannedString
 import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
@@ -24,11 +27,13 @@ import kotlinx.android.synthetic.main.layout_bottombar.view.*
 import kotlinx.android.synthetic.main.layout_submenu.view.*
 import kotlinx.android.synthetic.main.search_view_layout.*
 import ru.skillbranch.skillarticles.R
+import ru.skillbranch.skillarticles.data.repositories.Element
 import ru.skillbranch.skillarticles.data.repositories.MarkdownElement
 import ru.skillbranch.skillarticles.extensions.*
 import ru.skillbranch.skillarticles.ui.base.*
 import ru.skillbranch.skillarticles.ui.custom.ArticleSubmenu
 import ru.skillbranch.skillarticles.ui.custom.Bottombar
+import ru.skillbranch.skillarticles.ui.custom.markdown.MarkdownBuilder
 import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
@@ -301,6 +306,37 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             if (it.isBlank() && et_comment.hasFocus()) et_comment.clearFocus()
         }
 
+        private var isBigText: Boolean by RenderProp(false) {
+            if (it) {
+                tv_text_content.textSize = 18f
+                submenu.btn_text_up.isChecked = true
+                submenu.btn_text_down.isChecked = false
+            } else {
+                tv_text_content.textSize = 14f
+                submenu.btn_text_up.isChecked = false
+                submenu.btn_text_down.isChecked = true
+            }
+        }
+
+        private val builder = MarkdownBuilder(requireContext())
+        private var hashtags: List<String> by RenderProp(emptyList()) {
+            val tags = buildSpannedString {
+                it.forEach { tag ->
+                    builder.buildElement(Element.InlineCode(tag), this)
+                    append(" ")
+                }
+            }
+            tv_hashtags.setText(tags, TextView.BufferType.SPANNABLE)
+        }
+
+        private var source: String by RenderProp("") { link ->
+            val spannedLink = buildSpannedString {
+                builder.buildElement(Element.Link(link, "Article source"), this)
+            }
+            tv_source.movementMethod = LinkMovementMethod.getInstance()
+            tv_source.setText(spannedLink, TextView.BufferType.SPANNABLE)
+        }
+
         override val afterInflated: (() -> Unit)? = {
             dependsOn<Boolean, Boolean, List<Pair<Int, Int>>, Int>(
                 ::isLoadingContent,
@@ -322,18 +358,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             }
         }
 
-        private var isBigText: Boolean by RenderProp(false) {
-            if (it) {
-                tv_text_content.textSize = 18f
-                submenu.btn_text_up.isChecked = true
-                submenu.btn_text_down.isChecked = false
-            } else {
-                tv_text_content.textSize = 14f
-                submenu.btn_text_up.isChecked = false
-                submenu.btn_text_down.isChecked = true
-            }
-        }
-
         override fun bind(data: IViewModelState) {
             data as ArticleState
 
@@ -352,6 +376,8 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
             answerTo = data.answerTo ?: "Comment"
             isShowBottombar = data.showBottomBar
             commentText = data.commentText ?: ""
+            hashtags = data.hashtags
+            if (data.source != null) source = data.source
         }
 
         override fun saveUi(outState: Bundle) {

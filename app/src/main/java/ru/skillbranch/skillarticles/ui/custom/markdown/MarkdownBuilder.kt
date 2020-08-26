@@ -7,6 +7,7 @@ import android.text.SpannedString
 import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.URLSpan
+import androidx.core.content.ContextCompat
 import androidx.core.text.buildSpannedString
 import androidx.core.text.inSpans
 import ru.skillbranch.skillarticles.R
@@ -24,7 +25,7 @@ class MarkdownBuilder(context: Context) {
     private val colorSurface = context.attrValue(R.attr.colorSurface)
     private val colorOnSurface = context.attrValue(R.attr.colorOnSurface)
     private val opacityColorSurface = context.getColor(R.color.opacity_color_surface)
-    private val linkIcon = context.getDrawable(R.drawable.ic_link_24)!!.apply {
+    private val linkIcon = ContextCompat.getDrawable(context, R.drawable.ic_link_24)!!.apply {
         setTint(colorSecondary)
     }
     private val gap = context.dpToPx(8)
@@ -42,7 +43,7 @@ class MarkdownBuilder(context: Context) {
         }
     }
 
-    private fun buildElement(element: Element, builder: SpannableStringBuilder): CharSequence {
+    fun buildElement(element: Element, builder: SpannableStringBuilder): CharSequence {
         return builder.apply {
             when (element) {
                 is Element.Text -> append(element.text)

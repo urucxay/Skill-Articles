@@ -30,7 +30,7 @@ object DbManager {
         ArticleContent::class
     ],
     version = AppDb.DATABASE_VERSION,
-    exportSchema = true,
+    exportSchema = false,
     views = [ArticleItem::class, ArticleFull::class]
 )
 @TypeConverters(DateConverter::class)
