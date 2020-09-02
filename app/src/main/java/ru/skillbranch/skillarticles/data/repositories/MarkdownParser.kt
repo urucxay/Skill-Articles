@@ -4,8 +4,6 @@ import java.util.regex.Pattern
 
 object MarkdownParser {
 
-    private val LINE_SEPARATOR = System.getProperty("line.separator") ?: "\n"
-
     //group regex
     private const val UNORDERED_LIST_ITEM_GROUP = "(^[*+-] .+$)"
     private const val HEADER_GROUP = "(^#{1,6} .+?$)"
@@ -297,8 +295,6 @@ object MarkdownParser {
     }
 
 }
-
-data class MarkdownText(val elements: List<Element>)
 
 sealed class Element {
     abstract val text: CharSequence
