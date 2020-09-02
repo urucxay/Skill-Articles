@@ -96,16 +96,10 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
  * Also you can add items to the toolbar menu and customize them.
  */
 class ToolbarBuilder {
-    private var title: String? = null
     private var subtitle: String? = null
     private var logo: String? = null
     private var visibility: Boolean = true
     private val items: MutableList<MenuItemHolder> = mutableListOf()
-
-    fun setTitle(title: String): ToolbarBuilder {
-        this.title = title
-        return this
-    }
 
     fun setSubtitle(subtitle: String): ToolbarBuilder {
         this.subtitle = subtitle
@@ -130,7 +124,6 @@ class ToolbarBuilder {
     fun getItems() = items
 
     fun invalidate(): ToolbarBuilder {
-        this.title = null
         this.subtitle = null
         this.logo = null
         this.visibility = true
@@ -149,7 +142,6 @@ class ToolbarBuilder {
         context.appbar.setExpanded(true, true)
 
         with(context.toolbar) {
-            if (this@ToolbarBuilder.title != null) title = this@ToolbarBuilder.title
             subtitle = this@ToolbarBuilder.subtitle
 
             //setup parameters for logo image view if logo != null
