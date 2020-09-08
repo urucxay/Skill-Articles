@@ -141,8 +141,8 @@ abstract class BaseViewModel<T : IViewModelState>(
         block: suspend CoroutineScope.() -> Unit
     ) {
         val errHand = CoroutineExceptionHandler { _, throwable ->
-            errHandler?.invoke(throwable) ?: when(throwable) {
-                is NoNetworkError -> notify(Notify.TextMessage("Network not available, check internet connection"))
+            errHandler?.invoke(throwable) ?: when (throwable) {
+                is NoNetworkError -> notify(Notify.TextMessage("Network is not available, check internet connection"))
                 else -> notify(Notify.ErrorMessage(throwable.message ?: "Something went wrong"))
             }
         }

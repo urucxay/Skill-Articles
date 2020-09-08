@@ -13,6 +13,7 @@ import ru.skillbranch.skillarticles.data.repositories.ArticlesRepository
 import ru.skillbranch.skillarticles.extensions.data.toArticleFilter
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import java.util.concurrent.Executors
 
 class ArticlesViewModel(handle: SavedStateHandle) :
@@ -134,6 +135,17 @@ class ArticlesViewModel(handle: SavedStateHandle) :
             onCompletion = { isLoadingAfter = false }
         ) {
             repository.loadArticlesFromNetwork(itemAtEnd.id, listConfig.pageSize)
+        }
+    }
+
+    fun refresh() {
+        launchSafety {
+            val lastArticleId: String? = repository.findLastArticleId()
+            val count = repository.loadArticlesFromNetwork(
+                start = lastArticleId,
+                size = if (lastArticleId == null) listConfig.initialLoadSizeHint else -listConfig.pageSize
+            )
+            notify(Notify.TextMessage("Load $count new articles"))
         }
     }
 

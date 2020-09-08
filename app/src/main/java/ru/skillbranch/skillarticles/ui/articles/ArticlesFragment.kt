@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.search_view_layout.*
+import kotlinx.android.synthetic.main.search_view_layout.view.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
 import ru.skillbranch.skillarticles.ui.base.BaseFragment
@@ -27,6 +28,7 @@ import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesState
 import ru.skillbranch.skillarticles.viewmodels.articles.ArticlesViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
 
 class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
@@ -96,6 +98,19 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
         suggestionsAdapter.setFilterQueryProvider { constraint -> populateAdapter(constraint) }
 
         setHasOptionsMenu(true)
+    }
+
+    override fun onDestroyView() {
+        toolbar.search_view?.setOnQueryTextListener(null)
+        super.onDestroyView()
+    }
+
+    override fun renderLoading(loading: Loading) {
+        when (loading) {
+            Loading.SHOW_LOADING -> refresh.isRefreshing = true
+            Loading.SHOW_BLOCKING_LOADING -> refresh.isRefreshing = false
+            Loading.HIDE_LOADING -> refresh.isRefreshing = false
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
@@ -176,10 +191,19 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
         viewModel.observeCategories(viewLifecycleOwner) { categories ->
             binding.categories = categories
         }
+
+        refresh.setOnRefreshListener {
+            viewModel.refresh()
+        }
     }
 
     private fun populateAdapter(constraint: CharSequence?): Cursor {
-        val cursor = MatrixCursor(arrayOf(BaseColumns._ID, "tag")) // create cursor for table with 2 colums _id, tag
+        val cursor = MatrixCursor(
+            arrayOf(
+                BaseColumns._ID,
+                "tag"
+            )
+        ) // create cursor for table with 2 colums _id, tag
         constraint ?: return cursor
 
         val currentCursor = suggestionsAdapter.cursor
@@ -208,8 +232,14 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
             var drawable = toolbar.menu?.findItem(R.id.action_filter)?.icon ?: return@RenderProp
             drawable = DrawableCompat.wrap(drawable)
 
-            if (it.isNotEmpty()) DrawableCompat.setTint(drawable, resources.getColor(R.color.color_accent, null))
-            else DrawableCompat.setTint(drawable, resources.getColor(R.color.color_on_article_bar, null))
+            if (it.isNotEmpty()) DrawableCompat.setTint(
+                drawable,
+                resources.getColor(R.color.color_accent, null)
+            )
+            else DrawableCompat.setTint(
+                drawable,
+                resources.getColor(R.color.color_on_article_bar, null)
+            )
 
             toolbar.menu.findItem(R.id.action_filter).icon = drawable
         }

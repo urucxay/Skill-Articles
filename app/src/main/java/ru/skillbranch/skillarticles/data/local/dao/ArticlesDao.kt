@@ -74,4 +74,7 @@ interface ArticlesDao : BaseDao<Article> {
 
     @Query("SELECT * FROM articles")
     suspend fun findArticlesTest(): List<Article>
+
+    @Query("SELECT id FROM articles ORDER BY date DESC LIMIT 1 ")
+    suspend fun findLastArticleId(): String?
 }

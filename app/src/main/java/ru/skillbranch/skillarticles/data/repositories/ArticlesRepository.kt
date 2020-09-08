@@ -16,7 +16,7 @@ import ru.skillbranch.skillarticles.extensions.data.toArticleCounts
 import ru.skillbranch.skillarticles.extensions.data.toCategory
 
 interface IArticlesRepository {
-    suspend fun loadArticlesFromNetwork(start: String? = null, size: Int = 10): List<ArticleRes>
+    suspend fun loadArticlesFromNetwork(start: String? = null, size: Int = 10): Int
     suspend fun insertArticlesToDb(articles: List<ArticleRes>)
     suspend fun toggleBookmark(articleId: String)
     fun findTags(): LiveData<List<String>>
@@ -34,13 +34,13 @@ object ArticlesRepository : IArticlesRepository {
     private var tagsDao = db.tagsDao()
     private var articlePersonalDao = db.articlePersonalInfosDao()
 
-    override suspend fun loadArticlesFromNetwork(start: String?, size: Int): List<ArticleRes> {
-        val items =  network.articles(start, size)
+    override suspend fun loadArticlesFromNetwork(start: String?, size: Int): Int {
+        val items = network.articles(start, size)
         if (items.isNotEmpty()) insertArticlesToDb(items)
-        return items
+        return items.size
     }
 
-    override suspend  fun insertArticlesToDb(articles: List<ArticleRes>) {
+    override suspend fun insertArticlesToDb(articles: List<ArticleRes>) {
         articlesDao.upsert(articles.map { it.data.toArticle() })
         articleCountsDao.upsert(articles.map { it.counts.toArticleCounts() })
 
@@ -94,6 +94,8 @@ object ArticlesRepository : IArticlesRepository {
         this.tagsDao = tagsDao
         this.articlePersonalDao = articlePersonalDao
     }
+
+    suspend fun findLastArticleId(): String? = articlesDao.findLastArticleId()
 
 }
 
