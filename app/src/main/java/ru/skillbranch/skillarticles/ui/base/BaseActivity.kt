@@ -21,10 +21,9 @@ import com.google.android.material.behavior.HideBottomViewOnScrollBehavior
 import kotlinx.android.synthetic.main.activity_root.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.extensions.dpToIntPx
-import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
-import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
-import ru.skillbranch.skillarticles.viewmodels.base.NavigationCommand
-import ru.skillbranch.skillarticles.viewmodels.base.Notify
+import ru.skillbranch.skillarticles.extensions.hide
+import ru.skillbranch.skillarticles.extensions.show
+import ru.skillbranch.skillarticles.viewmodels.base.*
 
 abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatActivity() {
     protected abstract val viewModel: T
@@ -46,6 +45,7 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
         viewModel.observeState(this) { subscribeOnState(it) }
         viewModel.observeNotifications(this) { renderNotification(it) }
         viewModel.observeNavigation(this) { subscribeOnNavigation(it) }
+        viewModel.observeLoading(this) { renderLoading(it)}
 
         navController = findNavController(R.id.nav_host_fragment)
     }
@@ -86,6 +86,18 @@ abstract class BaseActivity<T : BaseViewModel<out IViewModelState>> : AppCompatA
                     bundleOf("private_destination" to (command.privateDestination ?: -1))
                 )
             }
+        }
+    }
+
+    open fun renderLoading(loading: Loading) {
+        when(loading) {
+            Loading.SHOW_LOADING -> progress.show()
+            Loading.SHOW_BLOCKING_LOADING -> {
+                progress.show()
+                //TODO block UI
+//                container.isClickable = false
+            }
+            Loading.HIDE_LOADING -> progress.hide()
         }
     }
 }

@@ -1,25 +1,26 @@
 package ru.skillbranch.skillarticles.viewmodels.articles
 
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
 import ru.skillbranch.skillarticles.data.repositories.ArticlesRepository
 import ru.skillbranch.skillarticles.extensions.data.toArticleFilter
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
-import ru.skillbranch.skillarticles.viewmodels.base.Notify
 import java.util.concurrent.Executors
 
 class ArticlesViewModel(handle: SavedStateHandle) :
     BaseViewModel<ArticlesState>(handle, ArticlesState()) {
 
     private val repository = ArticlesRepository
+    private var isLoadingInitial = false
+    private var isLoadingAfter = false
     private val listConfig by lazy {
         PagedList.Config.Builder()
             .setEnablePlaceholders(false)
@@ -112,29 +113,27 @@ class ArticlesViewModel(handle: SavedStateHandle) :
             && !currentState.isHashtagSearch
 
     private fun zeroLoadingHandle() {
-        notify(Notify.TextMessage("Storage is empty"))
-        viewModelScope.launch(Dispatchers.IO) {
-            val items = repository.loadArticlesFromNetwork(0, listConfig.initialLoadSizeHint)
-            if (items.isNotEmpty()) {
-                repository.insertArticlesToDb(items)
-                listData.value?.dataSource?.invalidate()
-            }
+        Log.d("LOAD_MORE", "ZERO_LOADING")
+        if (isLoadingInitial) return
+        else isLoadingInitial = true
+
+        launchSafety(
+            onCompletion = { isLoadingInitial = false }
+        ) {
+            repository.loadArticlesFromNetwork(null, listConfig.initialLoadSizeHint)
         }
     }
 
     private fun itemAtEndHandle(itemAtEnd: ArticleItem) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val items =
-                repository.loadArticlesFromNetwork(itemAtEnd.id.toInt() + 1, listConfig.pageSize)
+        Log.d("LOAD_MORE", "last item id ${itemAtEnd.id}")
 
-            if (items.isNotEmpty()) {
-                repository.insertArticlesToDb(items)
-                listData.value?.dataSource?.invalidate()
-            }
+        if (isLoadingAfter) return
+        else isLoadingAfter = true
 
-            withContext(Dispatchers.Main) {
-                notify(Notify.TextMessage("Loaded from network from ${items.firstOrNull()?.data?.id} to ${items.lastOrNull()?.data?.id}"))
-            }
+        launchSafety(
+            onCompletion = { isLoadingAfter = false }
+        ) {
+            repository.loadArticlesFromNetwork(itemAtEnd.id, listConfig.pageSize)
         }
     }
 
@@ -168,11 +167,13 @@ class ArticleBoundaryCallback(
 ) : PagedList.BoundaryCallback<ArticleItem>() {
 
     override fun onZeroItemsLoaded() {
+        Log.d("LOAD_MORE", "Zero Callback")
         //Storage is empty
         zeroLoadingHandle()
     }
 
     override fun onItemAtEndLoaded(itemAtEnd: ArticleItem) {
+        Log.d("LOAD_MORE", "End Callback")
         //need to load more items while user is scrolling down
         itemAtEndHandle(itemAtEnd)
     }
