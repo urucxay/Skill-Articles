@@ -15,11 +15,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.fragment_articles.*
 import kotlinx.android.synthetic.main.search_view_layout.*
 import kotlinx.android.synthetic.main.search_view_layout.view.*
 import ru.skillbranch.skillarticles.R
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
+import ru.skillbranch.skillarticles.extensions.hide
+import ru.skillbranch.skillarticles.extensions.show
 import ru.skillbranch.skillarticles.ui.base.BaseFragment
 import ru.skillbranch.skillarticles.ui.base.Binding
 import ru.skillbranch.skillarticles.ui.base.MenuItemHolder
@@ -107,9 +110,12 @@ class ArticlesFragment : BaseFragment<ArticlesViewModel>() {
 
     override fun renderLoading(loading: Loading) {
         when (loading) {
-            Loading.SHOW_LOADING -> refresh.isRefreshing = true
-            Loading.SHOW_BLOCKING_LOADING -> refresh.isRefreshing = false
-            Loading.HIDE_LOADING -> refresh.isRefreshing = false
+            Loading.SHOW_LOADING -> if(!refresh.isRefreshing) root.progress.show()
+            Loading.SHOW_BLOCKING_LOADING -> root.progress.hide()
+            Loading.HIDE_LOADING -> {
+                root.progress.hide()
+                if(refresh.isRefreshing) refresh.isRefreshing = false
+            }
         }
     }
 

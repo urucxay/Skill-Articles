@@ -5,10 +5,10 @@ import androidx.lifecycle.*
 import androidx.paging.DataSource
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import ru.skillbranch.skillarticles.data.local.entities.ArticleItem
 import ru.skillbranch.skillarticles.data.local.entities.CategoryData
+import ru.skillbranch.skillarticles.data.remote.err.NoNetworkError
 import ru.skillbranch.skillarticles.data.repositories.ArticlesRepository
 import ru.skillbranch.skillarticles.extensions.data.toArticleFilter
 import ru.skillbranch.skillarticles.viewmodels.base.BaseViewModel
@@ -93,13 +93,22 @@ class ArticlesViewModel(handle: SavedStateHandle) :
     }
 
     fun handleToggleBookmark(articleId: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.toggleBookmark(articleId)
+        launchSafety(
+            errHandler = { throwable ->
+                when (throwable) {
+                    is NoNetworkError -> notify(Notify.TextMessage("Network is not available, failed to fetch an article"))
+                    else -> notify(Notify.ErrorMessage(throwable.message ?: "Something wrong"))
+                }
+            }
+        ) {
+           val isBookmarked = repository.toggleBookmark(articleId)
+            if (isBookmarked) repository.fetchArticleContent(articleId)
+            else repository.removeArticleContent(articleId)
         }
     }
 
     fun handleSuggestion(tag: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             repository.incrementTagUseCount(tag)
         }
     }
