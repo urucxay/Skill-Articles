@@ -21,6 +21,7 @@ import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.appbar.AppBarLayout
+import kotlinx.android.synthetic.main.activity_root.*
 import kotlinx.android.synthetic.main.fragment_article.*
 import kotlinx.android.synthetic.main.layout_bottombar.*
 import kotlinx.android.synthetic.main.layout_bottombar.view.*
@@ -38,6 +39,7 @@ import ru.skillbranch.skillarticles.ui.delegates.RenderProp
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleState
 import ru.skillbranch.skillarticles.viewmodels.article.ArticleViewModel
 import ru.skillbranch.skillarticles.viewmodels.base.IViewModelState
+import ru.skillbranch.skillarticles.viewmodels.base.Loading
 import ru.skillbranch.skillarticles.viewmodels.base.ViewModelFactory
 
 class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
@@ -142,6 +144,10 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         viewModel.observeList(viewLifecycleOwner) {
             commentsAdapter.submitList(it)
         }
+
+        refresh.setOnRefreshListener {
+            viewModel.refresh()
+        }
     }
 
     override fun onDestroyView() {
@@ -157,6 +163,17 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
     override fun hideSearchBar() {
         bottombar.setSearchState(false)
         scroll.setMarginOptionally(bottom = 0)
+    }
+
+    override fun renderLoading(loading: Loading) {
+        when (loading) {
+            Loading.SHOW_LOADING -> if(!refresh.isRefreshing) root.progress.show()
+            Loading.SHOW_BLOCKING_LOADING -> root.progress.hide()
+            Loading.HIDE_LOADING -> {
+                root.progress.hide()
+                if(refresh.isRefreshing) refresh.isRefreshing = false
+            }
+        }
     }
 
     override fun onPrepareOptionsMenu(menu: Menu) {
