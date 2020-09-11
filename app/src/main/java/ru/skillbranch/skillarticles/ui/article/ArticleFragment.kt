@@ -157,12 +157,14 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
 
     override fun showSearchBar() {
         bottombar.setSearchState(true)
-        scroll.setMarginOptionally(bottom = root.dpToIntPx(56))
+//        scroll.setMarginOptionally(bottom = root.dpToIntPx(56))
+        refresh.setMarginOptionally(bottom = root.dpToIntPx(56))
     }
 
     override fun hideSearchBar() {
         bottombar.setSearchState(false)
-        scroll.setMarginOptionally(bottom = 0)
+//        scroll.setMarginOptionally(bottom = 0)
+        refresh.setMarginOptionally(bottom = root.dpToIntPx(0))
     }
 
     override fun renderLoading(loading: Loading) {
