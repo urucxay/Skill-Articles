@@ -1,13 +1,9 @@
 package ru.skillbranch.skillarticles.data.remote
 
 import retrofit2.Call
-import retrofit2.http.GET
-import retrofit2.http.Path
-import retrofit2.http.Query
-import ru.skillbranch.skillarticles.data.remote.res.ArticleContentRes
-import ru.skillbranch.skillarticles.data.remote.res.ArticleCountsRes
-import ru.skillbranch.skillarticles.data.remote.res.ArticleRes
-import ru.skillbranch.skillarticles.data.remote.res.CommentRes
+import retrofit2.http.*
+import ru.skillbranch.skillarticles.data.remote.req.LoginReq
+import ru.skillbranch.skillarticles.data.remote.res.*
 
 interface RestService {
 
@@ -32,5 +28,59 @@ interface RestService {
         @Query("last") last: String? = null,
         @Query("limit") limit: Int = 10
     ): List<ArticleRes>
+
+
+
+    //    @POST("articles/{article}/messages")
+//    suspend fun sendMessage(
+//        @Path("article") articleId: String,
+//        @Body message: MessageReq,
+//        @Header("Authorization") token: String
+//    ): MessageRes
+//    @POST("articles/{article}/decrementLikes")
+//    suspend fun decrementLike(
+//        @Path("article") articleId: String,
+//        @Header("Authorization") accessToken: String
+//    ): LikeRes
+//
+//    @POST("articles/{article}/incrementLikes")
+//    suspend fun incrementLike(
+//        @Path("article") articleId: String,
+//        @Header("Authorization") accessToken: String
+//    ): LikeRes
+
+//    //https://skill-articles.skill-branch.ru/api/v1/articles/{articleId}/addBookmark
+//    @POST("articles/{article}/addBookmark")
+//    suspend fun addBookmark(
+//        @Path("article") articleId: String,
+//        @Header("Authorization") accessToken: String
+//    ): BookmarkRes
+//
+//    //https://skill-articles.skill-branch.ru/api/v1/articles/{articleId}/removeBookmark
+//    @POST("articles/{article}/removeBookmark")
+//    suspend fun removeBookmark(
+//        @Path("article") articleId: String,
+//        @Header("Authorization") accessToken: String
+//    ): BookmarkRes
+//
+//    // https://skill-articles.skill-branch.ru/api/v1/auth/refresh
+//    @POST("auth/refresh")
+//    fun refreshToken(
+//        @Body refreshToken: RefreshReq
+//    ): Call<AuthRes>
+//
+//    //https://skill-articles.skill-branch.ru/api/v1/profile/avatar/upload
+//    @Multipart
+//    @POST("profile/avatar/upload")
+//    suspend fun upload(
+//        @Part file: MultipartBody.Part?,
+//        @Header("Authorization") accessToken: String
+//    ): UploadRes
+//
+//    //https://skill-articles.skill-branch.ru/api/v1/profile/avatar/remove
+//    @PUT("profile/avatar/remove")
+//    suspend fun remove(
+//        @Header("Authorization") accessToken: String
+//    ): UploadRes
 
 }

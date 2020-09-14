@@ -22,8 +22,10 @@ class AuthViewModel(
     }
 
     override fun handleLogin(login: String, pass: String, dest: Int?) {
-        repository.setAuth(true)
-        navigate(NavigationCommand.FinishLogin(dest))
+        launchSafety {
+            repository.login(login, pass)
+            navigate(NavigationCommand.FinishLogin(dest))
+        }
     }
 
 }
