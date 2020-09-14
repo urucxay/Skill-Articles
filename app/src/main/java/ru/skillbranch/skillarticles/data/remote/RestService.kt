@@ -23,7 +23,9 @@ interface RestService {
 
     @GET("articles/{article}/counts")
     suspend fun loadArticleCounts(@Path("article") articleId: String): ArticleCountsRes
-//
+
+    @POST("auth/login")
+    suspend fun login(@Body loginReq: LoginReq): AuthRes
 
     @GET("articles")
     suspend fun articles(

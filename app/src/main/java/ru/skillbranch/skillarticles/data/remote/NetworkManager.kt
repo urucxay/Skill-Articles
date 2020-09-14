@@ -6,7 +6,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import ru.skillbranch.skillarticles.AppConfig
 import ru.skillbranch.skillarticles.data.JsonConverter.moshi
+import ru.skillbranch.skillarticles.data.remote.interceptors.ErrorStatusInterceptor
 import ru.skillbranch.skillarticles.data.remote.interceptors.NetworkStatusInterceptor
+import java.util.concurrent.TimeUnit
 
 object NetworkManager {
 
@@ -17,8 +19,11 @@ object NetworkManager {
         }
 
         val client = OkHttpClient().newBuilder()
+            .readTimeout(2, TimeUnit.SECONDS)
+            .writeTimeout(2, TimeUnit.SECONDS)
             .addInterceptor(logging)
             .addInterceptor(NetworkStatusInterceptor())
+            .addInterceptor(ErrorStatusInterceptor())
             .build()
 
         val retrofit = Retrofit.Builder()
