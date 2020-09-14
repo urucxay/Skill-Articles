@@ -132,8 +132,6 @@ class ArticleFragment : BaseFragment<ArticleViewModel>(), IArticleView {
         wrap_comments.setEndIconOnClickListener {
             it.context.hideKeyboard(it)
             viewModel.handleClearComment()
-            et_comment.text = null
-            et_comment.clearFocus()
         }
 
         with(rv_comments) {
