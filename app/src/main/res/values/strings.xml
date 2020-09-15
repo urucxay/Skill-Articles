@@ -24,4 +24,7 @@ Nullam sem sem, rhoncus vitae porttitor et, pretium eu ipsum. Sed semper semper 
 
     <string name="min_to_read">%1$d min to read</string>
     <string name="menu_filter_title">Filter</string>
+
+    <string name="rating">Rating: %1$d</string>
+    <string name="respect">Respect: %1$d</string>
 </resources>

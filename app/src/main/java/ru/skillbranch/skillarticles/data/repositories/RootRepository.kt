@@ -10,10 +10,6 @@ object RootRepository {
 
     fun isAuth() = prefs.isAuthLiveData
 
-    fun setAuth(isAuth: Boolean) {
-        prefs.isAuth = isAuth
-    }
-
     suspend fun login(login: String, pass: String) {
         val auth = network.login(LoginReq(login, pass))
         prefs.profile = auth.user

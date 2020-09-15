@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.distinctUntilChanged
+import androidx.lifecycle.map
 import androidx.preference.PreferenceManager
 import ru.skillbranch.skillarticles.App
 import ru.skillbranch.skillarticles.data.JsonConverter.moshi
@@ -20,15 +21,17 @@ object PrefManager {
         PreferenceManager.getDefaultSharedPreferences(App.applicationContext())
     }
 
-    var isAuth by PrefDelegate(false)
-
     var isDarkMode by PrefDelegate(false)
     var isBigText by PrefDelegate(false)
     var accessToken by PrefDelegate("")
     var refreshToken by PrefDelegate("")
     var profile: User? by PrefObjDelegate(moshi.adapter(User::class.java))
 
-    val isAuthLiveData by PrefLiveDelegate("isAuth", false, preferences)
+    val isAuthLiveData by lazy {
+        val token by PrefLiveDelegate("accessToken", "", preferences)
+        token.map { it.isNotEmpty() }
+    }
+
     val profileLive by PrefLiveObjDelegate("profile", moshi.adapter(User::class.java), preferences)
 
     val appSettings = MediatorLiveData<AppSettings>().apply {
